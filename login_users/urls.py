@@ -16,8 +16,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
 from base.Views import views
-
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -25,6 +26,10 @@ urlpatterns = [
     path('register/', views.register, name='register'),
     path('logout/', views.exit, name='logout'),
     path('accounts/', include('django.contrib.auth.urls')),
-    # Agrega otras URL y vistas según sea necesario
+    path('password_change/', auth_views.PasswordChangeView.as_view(), name='password_change'),
+    path('login/', views.login_view, name='login')
 ]
 
+if settings.DEBUG:
+    from django.conf.urls.static import static
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -5,16 +5,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .custom-container { /* Usamos 100vh para ocupar el 100% de la altura de la pantalla */
+            background-color: #eee; /* Cambia el color de fondo según tus preferencias */
+        }
+        .custom-link {
+            font-family: Arial, sans-serif; /* Cambia la fuente a Arial o la que desees */
+            font-size: 18px;
+            color: black; /* Cambia el tamaño de la fuente según tus preferencias */
+            /* Puedes agregar más estilos personalizados según sea necesario */
+        }
+    </style>
     <title>Aplicacion</title>
 </head>
 
-<body>
+<body class="custom-container">
 
-    <div class="container">
-
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid custom-container">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <div class="container-fluid">
-                <a class="navbar-brand" href={% url 'home' %}>Aplicacion</a>
+                <a class="navbar-brand custom-link" href={% url 'home' %}>Aplicacion</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                     data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
                     aria-expanded="false" aria-label="Toggle navigation">
@@ -31,6 +41,9 @@
                         {% if request.user.is_authenticated %}
                         <li class="nav-item">
                             <a class="nav-link" href={% url 'logout' %}>Salir</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href={% url 'password_change' %}>Cambiar contrasena</a>
                         </li>
                         {% else %}
                         <li class="nav-item">

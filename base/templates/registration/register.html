@@ -4,7 +4,6 @@
 
 {% load crispy_forms_tags %}
 
-
 <br>
 <div class="card mx-auto" style="width: 30rem;">
     <div class="card-body">
@@ -13,13 +12,23 @@
         <form action="" method="post">
             {% csrf_token %}
 
+            {% if errors %}
+                <div class="alert alert-danger">
+                    <ul>
+                        {% for field, errors in errors.items %}
+                            {% for error in errors %}
+                                <li>{{ field }}: {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
             {{ form | crispy }}
 
             <button type="submit">Registrarse</button>
         </form>
-
     </div>
 </div>
-
 
 {% endblock %}

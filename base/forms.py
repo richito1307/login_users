@@ -1,18 +1,17 @@
 # forms.py
 from django import forms
-from base.models import mUsuario
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
+from user.models import User
 
 class CustomUserCreation(UserCreationForm):
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name', 'email', 'is_active', 'password1', 'password2']
-
-class mUsuarioCreationForm(forms.ModelForm):
-    class Meta:
-        model = mUsuario
-        fields = ['CvUser', 'CvPerson', 'Login', 'Password', 'FecIni', 'FecFin', 'EdoCta']
+        fields = ['username','cvPersona', 'is_active', 'date_joined','dateEnd', 'password1', 'password2']
+    
+        widgets = {
+            'dateEnd': forms.SelectDateWidget(),
+            #'is_active': forms.CheckboxInput(attrs={'disabled': 'disabled'}),
+        }
 
 class LoginForm(forms.Form):
     username = forms.CharField(max_length=30, label="Usuario")
