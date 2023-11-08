@@ -7,27 +7,20 @@ from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 
 def register(request):
-    data = {
-        'form': CustomUserCreation(),
-    }
-
     if request.user.is_authenticated:
         if request.method == 'POST':
-            user_creation_form = CustomUserCreation(data=request.POST)
+            user_creation_form = CustomUserCreation(request.POST)
 
             if user_creation_form.is_valid():
-                user = authenticate(username=user.username, password=user_creation_form.cleaned_data['password1'])
-                login(request, user)
-                return redirect('home')
-            else:
-                errors = user_creation_form.errors
-                data['errors'] = errors  # Agrega los errores al contexto para mostrarlos en la plantilla
+                user = user_creation_form.save()  # Guarda el nuevo usuario
+                login(request, user)  # Inicia sesión al nuevo usuario
+                return redirect('home')  # Redirige a la página de inicio después de registrarse
+
+        else:
+            user_creation_form = CustomUserCreation()
     else:
         return redirect('login')
-
-    # Combina el contexto de 'data' con el contexto de 'personas'
-    context = {**data}
-    
+    context = {'form': user_creation_form}
     return render(request, 'registration/register.html', context)
 
 
@@ -48,10 +41,12 @@ def login_view(request):
                 userA =  User.objects.get(id=user_id.id)
 
                 now = timezone.now()
-                if userA.dateEnd is not None and now > userA.dateEnd:
-                    userA.is_active = False
-                else:
-                    userA.is_active = True
+                if userA.dateEnd is not None:
+
+                    if (now > userA.dateEnd or userA.date_joined>now):
+                        userA.is_active = False
+                    else:
+                        userA.is_active = True
                 userA.save()
 
                 if userA.is_active:
