@@ -1,21 +1,36 @@
-from base.forms import CustomUserCreation, LoginForm
+from base.forms import CustomUserCreation, LoginForm, CustomPasswordChangeForm
 from django.shortcuts import render, redirect
 from django.contrib.auth import logout, authenticate, login
 from django.utils import timezone
-from user.models import mPersona, User
+from user.models import User
+from mPersona.models import mPersona
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import update_session_auth_hash
+
+@login_required
+def change_password(request):
+    if request.method == 'POST':
+        form = CustomPasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user) 
+            return redirect('home')
+    else:
+        form = CustomPasswordChangeForm(request.user)
+    return render(request, 'registration/password_change.html', {'form': form})
+
+
 
 def register(request):
     if request.user.is_authenticated:
         if request.method == 'POST':
             user_creation_form = CustomUserCreation(request.POST)
-
             if user_creation_form.is_valid():
-                user = user_creation_form.save()  # Guarda el nuevo usuario
-                login(request, user)  # Inicia sesión al nuevo usuario
-                return redirect('home')  # Redirige a la página de inicio después de registrarse
-
+                user = user_creation_form.save() 
+                login(request, user)
+                return redirect('home')
         else:
             user_creation_form = CustomUserCreation()
     else:
@@ -64,12 +79,14 @@ def login_view(request):
     return render(request, 'registration/login.html', context)
 
 def home(request):
+    context = {}
+    
     if request.user.is_authenticated:
-        user_id = request.user.id
+        user_id = request.user.cvPersona_id
+        
         persona = mPersona.objects.get(CvPersona=user_id)
-        context = {'persona': persona}
-    else:
-        context={}
+        context['persona'] = persona
+        
     
     return render(request, 'home.html', context)
 
