@@ -21,8 +21,6 @@ def change_password(request):
         form = CustomPasswordChangeForm(request.user)
     return render(request, 'registration/password_change.html', {'form': form})
 
-
-
 def register(request):
     if request.user.is_authenticated:
         if request.method == 'POST':
@@ -38,11 +36,11 @@ def register(request):
     context = {'form': user_creation_form}
     return render(request, 'registration/register.html', context)
 
-
 def login_view(request):
-    data= {
+    data = {
         'form': LoginForm(),
     }
+
     if request.method == 'POST':
         user_creation_form = LoginForm(data=request.POST)
 
@@ -51,18 +49,23 @@ def login_view(request):
             password = request.POST['password']
         
             user = authenticate(request, username=username, password=password)
+            
             try:
                 user_id = User.objects.get(username=username)
-                userA =  User.objects.get(id=user_id.id)
-
+                userA = User.objects.get(id=user_id.id)
                 now = timezone.now()
                 if userA.dateEnd is not None:
-
-                    if (now > userA.dateEnd or userA.date_joined>now):
-                        userA.is_active = False
+                    if now > userA.dateEnd or userA.date_joined > now:
+                        if userA.is_active:
+                            userA.is_active = False
+                            userA.save()
+                            messages.error(request, 'Su cuenta ha sido desactivada.')
+                        else:
+                            messages.error(request, 'Su cuenta está desactivada. Póngase en contacto con el administrador.')
+                            return redirect('login')
                     else:
                         userA.is_active = True
-                userA.save()
+                        userA.save()
 
                 if userA.is_active:
                     if user is not None:        
@@ -70,8 +73,7 @@ def login_view(request):
                         return redirect('home') 
                     else:
                         messages.error(request, 'Credenciales de inicio de sesión incorrectas.')
-                else:
-                    messages.error(request, 'Su cuenta está desactivada. Póngase en contacto con el administrador.')
+
             except ObjectDoesNotExist:
                 messages.error(request, 'El usuario no existe en la base de datos')
                 
@@ -80,13 +82,10 @@ def login_view(request):
 
 def home(request):
     context = {}
-    
     if request.user.is_authenticated:
         user_id = request.user.cvPersona_id
-        
         persona = mPersona.objects.get(CvPersona=user_id)
         context['persona'] = persona
-        
     
     return render(request, 'home.html', context)
 
