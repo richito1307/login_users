@@ -1,4 +1,4 @@
-from base.forms import CustomUserCreation, LoginForm, CustomPasswordChangeForm
+from base.forms import CustomUserCreation, LoginForm, CustomPasswordChangeForm, CustomUserChange
 from django.shortcuts import render, redirect
 from django.contrib.auth import logout, authenticate, login
 from django.utils import timezone
@@ -26,7 +26,8 @@ def register(request):
         if request.method == 'POST':
             user_creation_form = CustomUserCreation(request.POST)
             if user_creation_form.is_valid():
-                user = user_creation_form.save() 
+
+                user = user_creation_form.save()
                 login(request, user)
                 return redirect('home')
         else:
@@ -35,6 +36,23 @@ def register(request):
         return redirect('login')
     context = {'form': user_creation_form}
     return render(request, 'registration/register.html', context)
+
+def user_change(request):
+    if request.user.is_authenticated:
+        if request.method == 'POST':
+            user_change_form = CustomUserChange(request.POST)
+            if user_change_form.is_valid():
+
+                user = user_change_form.save()
+                login(request, user)
+                return redirect('home')
+        else:
+            user_change_form = CustomUserChange()
+    else:
+        return redirect('login')
+    context = {'form': user_change_form}
+    return render(request, 'registration/change.html', context)
+
 
 def login_view(request):
     data = {
@@ -47,7 +65,6 @@ def login_view(request):
         if user_creation_form.is_valid():
             username = request.POST['username']
             password = request.POST['password']
-        
             user = authenticate(request, username=username, password=password)
             
             try:
