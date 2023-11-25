@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% load crispy_forms_tags %}
+
+<h1>Lista de Datos</h1>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>CvUser</th>
+                <th>Nombre</th>
+                <th>Login</th>
+                <th>FecIni</th>
+                <th>FecFin</th>
+                <th>EdoCta</th>
+                <th>Opciones</th>
+                <!-- Agrega más columnas según las propiedades de tu modelo -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for dato in user_data %}
+                <tr>
+                    <td>{{ dato.id }}</td>
+                    <td>{{ dato.cvPersona }}</td>
+                    <td>{{ dato.username }}</td>
+                    <td>{{ dato.date_joined }}</td>
+                    <td>{{ dato.dateEnd }}</td>
+                    <td>{{ dato.is_active }}</td>
+                    <td>
+                        <a href="{% url 'user_edit' dato.id %}"><button>Editar</button></a>
+                    </td>
+                    <!-- Agrega más celdas según las propiedades de tu modelo -->
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{% url 'register' %}"><button>Nuevo</button></a>
+
+{% endblock %}
+
+

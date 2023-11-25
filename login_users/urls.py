@@ -22,11 +22,13 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.home, name='home'),
-    path('register/', views.register, name='register'),
-    path('logout/', views.exit, name='logout'),
+    path('', views.home_view, name='home'),
+    path('register/', views.register_view, name='register'),
+    path('logout/', views.exit_view, name='logout'),
     path('accounts/', include('django.contrib.auth.urls')),
-    path('password_change/', views.change_password, name='password_change'),
+    path('password_change/', views.change_password_view, name='password_change'),
+    path('users/', views.user_list, name='users'),
+    path('users/edit/<int:user_id>/', views.user_edit, name='user_edit'),
     #path('password_change/', auth_views.PasswordChangeView.as_view(), name='password_change'),
     path('login/', views.login_view, name='login'),
 ]

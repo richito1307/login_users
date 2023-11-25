@@ -1,5 +1,5 @@
-from base.forms import CustomUserCreation, LoginForm, CustomPasswordChangeForm, CustomUserChange
-from django.shortcuts import render, redirect
+from base.forms import CustomUserCreation, LoginForm, CustomPasswordChangeForm, CustomUserEditForm
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import logout, authenticate, login
 from django.utils import timezone
 from user.models import User
@@ -10,7 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import update_session_auth_hash
 
 @login_required
-def change_password(request):
+def change_password_view(request):
     if request.method == 'POST':
         form = CustomPasswordChangeForm(request.user, request.POST)
         if form.is_valid():
@@ -21,38 +21,22 @@ def change_password(request):
         form = CustomPasswordChangeForm(request.user)
     return render(request, 'registration/password_change.html', {'form': form})
 
-def register(request):
+from django.shortcuts import render, redirect
+from django.contrib.auth import login
+
+def register_view(request):
     if request.user.is_authenticated:
         if request.method == 'POST':
-            user_creation_form = CustomUserCreation(request.POST)
-            if user_creation_form.is_valid():
-
-                user = user_creation_form.save()
+            form = CustomUserCreation(request.POST)
+            if form.is_valid():
+                user = form.save()
                 login(request, user)
                 return redirect('home')
         else:
-            user_creation_form = CustomUserCreation()
+            form = CustomUserCreation()
+        return render(request, 'registration/register.html', {'form': form})
     else:
         return redirect('login')
-    context = {'form': user_creation_form}
-    return render(request, 'registration/register.html', context)
-
-def user_change(request):
-    if request.user.is_authenticated:
-        if request.method == 'POST':
-            user_change_form = CustomUserChange(request.POST)
-            if user_change_form.is_valid():
-
-                user = user_change_form.save()
-                login(request, user)
-                return redirect('home')
-        else:
-            user_change_form = CustomUserChange()
-    else:
-        return redirect('login')
-    context = {'form': user_change_form}
-    return render(request, 'registration/change.html', context)
-
 
 def login_view(request):
     data = {
@@ -97,7 +81,7 @@ def login_view(request):
     context = {**data}
     return render(request, 'registration/login.html', context)
 
-def home(request):
+def home_view(request):
     context = {}
     if request.user.is_authenticated:
         user_id = request.user.cvPersona_id
@@ -106,6 +90,23 @@ def home(request):
     
     return render(request, 'home.html', context)
 
-def exit(request):
+def exit_view(request):
     logout(request)
     return redirect('home')
+
+def user_list(request):
+    user_data = User.objects.all()
+    return render(request, 'user_list.html', {'user_data':user_data})
+
+def user_edit(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+
+    if request.method == 'POST':
+        form = CustomUserEditForm(request.POST, instance=user)
+        if form.is_valid():
+            form.save()
+            return redirect('users')
+    else:
+        form = CustomUserEditForm(instance=user)
+
+    return render(request, 'user_edit.html', {'form': form})
